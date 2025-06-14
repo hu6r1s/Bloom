@@ -1,4 +1,13 @@
 spring:
+  data:
+    mongodb:
+      username: root
+      password: root
+      database: bloom
+      host: localhost
+      port: 27017
+      authentication-database: admin
+
   security:
     oauth2:
       client:
@@ -30,6 +39,6 @@ spring:
             user-name-attribute: id
 
 jwt:
-  secret: VGw5bmVjdyVkOVclY3YuWCtmc1s8aWtkVVFiZHszNHJbUTh8fEM4UDA6NltsYT86ZVRLWm14QTpOLF8hSjc7
+  secret: ${JWT_SECRET}
   access-token-validity-in-seconds: 3600
   refresh-token-validity-in-seconds: 604800

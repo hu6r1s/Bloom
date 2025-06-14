@@ -1,6 +1,7 @@
 package com.hu6r1s.bloom.global.handler;
 
 import com.hu6r1s.bloom.global.jwt.JwtProvider;
+import com.hu6r1s.bloom.users.entity.CustomUserDetails;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -22,6 +23,8 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
     CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
     String accessToken = jwtProvider.createAccessToken(authentication);
     String refreshToken = jwtProvider.createRefreshToken(authentication);
+
+    // todo 리프레시 토큰은 Redis 저장
 
     String redirectUrl = UriComponentsBuilder.fromUriString("/login/success")
         .queryParam("accessToken", accessToken)

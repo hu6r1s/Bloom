@@ -2,6 +2,7 @@ package com.hu6r1s.bloom.global.config;
 
 import com.hu6r1s.bloom.global.filter.JwtAuthenticationFilter;
 import com.hu6r1s.bloom.global.handler.OAuth2AuthenticationSuccessHandler;
+import com.hu6r1s.bloom.users.service.CustomOAuth2UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

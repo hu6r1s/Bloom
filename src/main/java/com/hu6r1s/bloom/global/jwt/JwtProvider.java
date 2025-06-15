@@ -47,7 +47,7 @@ public class JwtProvider {
     Date validity = new Date(now + this.accessTokenValidityInMilliseconds);
     return Jwts.builder()
         .subject(authentication.getName())
-        .claim("auth", authorities)
+        .claim("role", authorities)
         .signWith(key)
         .expiration(validity)
         .compact();

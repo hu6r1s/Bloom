@@ -18,7 +18,6 @@ import org.springframework.stereotype.Service;
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
   private final UserRepository userRepository;
-  private final MongoTemplate mongoTemplate;
 
   @Override
   public OAuth2User loadUser(OAuth2UserRequest request) {
@@ -34,8 +33,6 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
       User newUser = oAuthAttributes.toEntity();
       return userRepository.save(newUser);
     });
-    System.out.println(user.getEmail());
-    System.out.println(mongoTemplate.getDb().getName());
 
     return new CustomUserDetails(user, oAuthAttributes.getAttributes());
   }

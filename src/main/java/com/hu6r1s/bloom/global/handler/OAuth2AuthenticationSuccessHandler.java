@@ -1,15 +1,14 @@
 package com.hu6r1s.bloom.global.handler;
 
 import com.hu6r1s.bloom.global.jwt.JwtProvider;
-import com.hu6r1s.bloom.users.entity.CustomUserDetails;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
-import org.springframework.web.util.UriComponentsBuilder;
 
 @Component
 @RequiredArgsConstructor
@@ -17,18 +16,19 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 
   private final JwtProvider jwtProvider;
 
+  @Value("${front-end.uri}")
+  private String FRONT_END_URI;
+
   @Override
   public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication)
       throws IOException {
-    CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
     String accessToken = jwtProvider.createAccessToken(authentication);
     String refreshToken = jwtProvider.createRefreshToken(authentication);
 
-    // todo 리프레시 토큰은 Redis 저장
+    // todo 리프레시 토큰은 Redis, HttpOnly Cookie 저장
 
-    String redirectUrl = UriComponentsBuilder.fromUriString("/login/success")
-        .queryParam("accessToken", accessToken)
-        .build().toUriString();
+    String redirectUrl = FRONT_END_URI + "/login/success";
+    response.setHeader("Authorization", "Bearer " + accessToken);
 
     getRedirectStrategy().sendRedirect(request, response, redirectUrl);
   }

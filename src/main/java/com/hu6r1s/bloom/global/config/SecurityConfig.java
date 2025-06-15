@@ -1,6 +1,7 @@
 package com.hu6r1s.bloom.global.config;
 
 import com.hu6r1s.bloom.global.filter.JwtAuthenticationFilter;
+import com.hu6r1s.bloom.global.handler.OAuth2AuthenticationFailHandler;
 import com.hu6r1s.bloom.global.handler.OAuth2AuthenticationSuccessHandler;
 import com.hu6r1s.bloom.users.service.CustomOAuth2UserService;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +19,7 @@ public class SecurityConfig {
 
   private final CustomOAuth2UserService customOAuth2UserService;
   private final OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
+  private final OAuth2AuthenticationFailHandler oAuth2AuthenticationFailHandler;
   private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
   @Bean
@@ -25,14 +27,16 @@ public class SecurityConfig {
     http
         .csrf(csrf -> csrf.disable())
         .authorizeHttpRequests(authorization -> authorization
-            .requestMatchers("/", "/signup", "/login/**").permitAll()
+            .requestMatchers("/", "/api/v1/login/**").permitAll()
             .anyRequest().authenticated()
         )
         .oauth2Login(oauth2 -> oauth2
+            .authorizationEndpoint(endpoint -> endpoint.baseUri("/api/v1/login"))
             .userInfoEndpoint(userInfo -> userInfo
                 .userService(customOAuth2UserService)
             )
             .successHandler(oAuth2AuthenticationSuccessHandler)
+            .failureHandler(oAuth2AuthenticationFailHandler)
         )
         .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 

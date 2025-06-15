@@ -65,8 +65,4 @@ public class User {
     this.email = email;
     this.roles = role;
   }
-
-  public void update(String nickname) {
-    this.nickname = nickname;
-  }
 }

@@ -1,14 +1,11 @@
 package com.hu6r1s.bloom.chat.controller;
 
-import static org.springframework.messaging.simp.SimpMessageHeaderAccessor.getUser;
-
 import com.hu6r1s.bloom.chat.dto.response.ChatMessageDto;
 import com.hu6r1s.bloom.chat.entity.ChatMessage;
 import com.hu6r1s.bloom.chat.entity.ChatNotification;
 import com.hu6r1s.bloom.chat.service.ChatMessageService;
 import com.hu6r1s.bloom.chat.service.ChatRoomService;
 import com.hu6r1s.bloom.users.entity.CustomUserDetails;
-import java.security.Principal;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.MessageMapping;

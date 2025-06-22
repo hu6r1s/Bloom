@@ -1,7 +1,7 @@
 package com.hu6r1s.bloom.users.dto;
 
-import com.hu6r1s.bloom.users.entity.enums.Role;
 import com.hu6r1s.bloom.users.entity.User;
+import com.hu6r1s.bloom.users.entity.enums.Role;
 import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -31,6 +31,7 @@ public class OAuthAttributes {
     );
   }
 
+  @SuppressWarnings("unchecked")
   private static OAuthAttributes ofKakao(Map<String, Object> attributes) {
     Map<String, Object> kakaoAccount = (Map<String, Object>) attributes.get("kakao_account");
     Map<String, Object> profile = (Map<String, Object>) kakaoAccount.get("profile");

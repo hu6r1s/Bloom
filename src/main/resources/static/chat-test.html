@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>매칭 앱 테스트</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.6.1/sockjs.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #ff6b6b 0%, #feca57 50%, #48dbfb 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .section {
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 20px;
+      padding: 25px;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+      backdrop-filter: blur(10px);
+    }
+
+    .full-width {
+      grid-column: 1 / -1;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    h1 {
+      color: #333;
+      font-size: 2.5em;
+      margin-bottom: 10px;
+      background: linear-gradient(45deg, #ff6b6b, #feca57);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    h2 {
+      color: #333;
+      font-size: 1.5em;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .subtitle {
+      color: #666;
+      font-size: 1.1em;
+    }
+
+    .auth-status {
+      padding: 15px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      font-weight: 600;
+      text-align: center;
+    }
+
+    .auth-status.logged-out {
+      background: #fed7d7;
+      color: #c53030;
+      border: 2px solid #feb2b2;
+    }
+
+    .auth-status.logged-in {
+      background: #c6f6d5;
+      color: #2f855a;
+      border: 2px solid #9ae6b4;
+    }
+
+    .btn {
+      background: linear-gradient(45deg, #ff6b6b, #feca57);
+      color: white;
+      border: none;
+      padding: 12px 25px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      margin-right: 10px;
+      margin-bottom: 10px;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4);
+    }
+
+    .btn.secondary {
+      background: linear-gradient(45deg, #48dbfb, #0abde3);
+    }
+
+    .btn.danger {
+      background: linear-gradient(45deg, #ff6b6b, #ee5a52);
+    }
+
+    .btn:disabled {
+      background: #cbd5e0;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    input[type="text"], input[type="url"] {
+      width: 100%;
+      padding: 12px 15px;
+      border: 2px solid #e2e8f0;
+      border-radius: 10px;
+      font-size: 14px;
+      transition: all 0.3s ease;
+      background: white;
+      margin-bottom: 10px;
+    }
+
+    input[type="text"]:focus, input[type="url"]:focus {
+      outline: none;
+      border-color: #ff6b6b;
+      box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.1);
+    }
+
+    .user-card {
+      background: #f8f9fa;
+      border: 2px solid #e9ecef;
+      border-radius: 15px;
+      padding: 20px;
+      margin-bottom: 15px;
+      text-align: center;
+      transition: all 0.3s ease;
+    }
+
+    .user-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .user-avatar {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: linear-gradient(45deg, #ff6b6b, #feca57);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 15px;
+      font-size: 2em;
+      color: white;
+    }
+
+    .chat-room {
+      background: #f0f8ff;
+      border: 2px solid #b3d9ff;
+      border-radius: 15px;
+      padding: 15px;
+      margin-bottom: 10px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .chat-room:hover {
+      background: #e6f3ff;
+      transform: translateX(5px);
+    }
+
+    .chat-room.active {
+      background: #d4edda;
+      border-color: #28a745;
+    }
+
+    .messages-container {
+      height: 300px;
+      overflow-y: auto;
+      border: 2px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 15px;
+      background: white;
+      margin-bottom: 15px;
+    }
+
+    .message {
+      margin-bottom: 15px;
+      padding: 12px 15px;
+      border-radius: 12px;
+      animation: slideIn 0.3s ease;
+    }
+
+    .message.sent {
+      background: linear-gradient(45deg, #ff6b6b, #feca57);
+      color: white;
+      margin-left: 20%;
+      text-align: right;
+    }
+
+    .message.received {
+      background: #f1f3f4;
+      color: #333;
+      margin-right: 20%;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .message-input {
+      display: flex;
+      gap: 10px;
+    }
+
+    .message-input input {
+      flex: 1;
+      margin-bottom: 0;
+    }
+
+    .status-indicator {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      margin-right: 8px;
+    }
+
+    .status-indicator.online {
+      background: #28a745;
+    }
+
+    .status-indicator.offline {
+      background: #dc3545;
+    }
+
+    .alert {
+      padding: 12px 15px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+    }
+
+    .alert.success {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+
+    .alert.error {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+
+    .alert.info {
+      background: #d1ecf1;
+      color: #0c5460;
+      border: 1px solid #bee5eb;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        grid-template-columns: 1fr;
+      }
+
+      h1 {
+        font-size: 2em;
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <!-- 헤더 -->
+  <div class="section full-width">
+    <div class="header">
+      <h1>💕 매칭 앱 테스트</h1>
+      <p class="subtitle">로그인 → 좋아요 → 매칭 → 채팅 플로우 테스트</p>
+    </div>
+
+    <div class="auth-status logged-out" id="authStatus">
+      <span class="status-indicator offline"></span>
+      로그인이 필요합니다
+    </div>
+
+    <div style="text-align: center;">
+      <input type="url" id="serverUrl" placeholder="서버 URL (http://localhost:8080)" value="http://localhost:8080">
+      <br>
+      <a href="#" class="btn" id="loginBtn" onclick="goToLogin()">🔐 OAuth 로그인</a>
+      <button class="btn secondary" onclick="checkAuth()">🔍 로그인 상태 확인</button>
+      <button class="btn danger" onclick="logout()">🚪 로그아웃</button>
+    </div>
+  </div>
+
+  <!-- 좋아요/매칭 섹션 -->
+  <div class="section">
+    <h2>❤️ 좋아요 & 매칭</h2>
+
+    <div id="likeSection" style="display: none;">
+      <input type="text" id="targetUserId" placeholder="좋아요 할 사용자 ID 입력">
+      <button class="btn" onclick="sendLike()">💖 좋아요 보내기</button>
+
+      <div id="likeResult"></div>
+
+      <div style="margin-top: 20px;">
+        <h3 style="margin-bottom: 15px;">📝 테스트용 가상 사용자들</h3>
+        <div class="user-card">
+          <div class="user-avatar">👩</div>
+          <strong>user001</strong>
+          <button class="btn" onclick="quickLike('user001')">좋아요</button>
+        </div>
+        <div class="user-card">
+          <div class="user-avatar">👨</div>
+          <strong>user002</strong>
+          <button class="btn" onclick="quickLike('user002')">좋아요</button>
+        </div>
+        <div class="user-card">
+          <div class="user-avatar">👩‍🦱</div>
+          <strong>user003</strong>
+          <button class="btn" onclick="quickLike('user003')">좋아요</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="authRequired" class="alert info">
+      로그인 후 좋아요 기능을 사용할 수 있습니다.
+    </div>
+  </div>
+
+  <!-- 채팅방 목록 -->
+  <div class="section">
+    <h2>💬 내 채팅방</h2>
+
+    <div id="chatRoomsSection" style="display: none;">
+      <button class="btn secondary" onclick="loadChatRooms()">🔄 채팅방 새로고침</button>
+      <div id="chatRoomsList"></div>
+    </div>
+
+    <div id="chatAuthRequired" class="alert info">
+      로그인 후 채팅방을 확인할 수 있습니다.
+    </div>
+  </div>
+
+  <!-- 채팅 섹션 -->
+  <div class="section full-width" id="chatSection" style="display: none;">
+    <h2>💭 채팅</h2>
+
+    <div class="alert info" id="chatInfo">
+      채팅방을 선택하면 실시간 채팅을 시작할 수 있습니다.
+    </div>
+
+    <div id="chatContainer" style="display: none;">
+      <div style="margin-bottom: 15px;">
+        <strong>채팅방: </strong><span id="currentRoomName"></span>
+        <span class="status-indicator offline" id="wsStatus"></span>
+        <span id="wsStatusText">연결되지 않음</span>
+      </div>
+
+      <div class="messages-container" id="messages">
+        <p style="color: #666; text-align: center; margin-top: 100px;">
+          메시지가 없습니다. 첫 메시지를 보내보세요! 💌
+        </p>
+      </div>
+
+      <div class="message-input">
+        <input type="text" id="messageInput" placeholder="메시지를 입력하세요..." disabled>
+        <button class="btn" id="sendBtn" onclick="sendMessage()" disabled>전송</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  let isLoggedIn = false;
+  let currentUserId = null;
+  let stompClient = null;
+  let currentRoomId = null;
+  let serverUrl = 'http://localhost:8080';
+
+  // 초기화
+  document.addEventListener('DOMContentLoaded', function() {
+    updateServerUrl();
+    checkAuth();
+  });
+
+  function updateServerUrl() {
+    serverUrl = document.getElementById('serverUrl').value.trim() || 'http://localhost:8080';
+    document.getElementById('loginBtn').href = `${serverUrl}/api/v1/login`;
+  }
+
+  function goToLogin() {
+    updateServerUrl();
+    window.open(`${serverUrl}/api/v1/login`, '_blank');
+  }
+
+  async function checkAuth() {
+    updateServerUrl();
+    try {
+      const response = await fetch(`${serverUrl}/api/v1/chat/rooms`, {
+        method: 'GET',
+        credentials: "include"
+      });
+
+      if (response.ok) {
+        const asd = await response.json()
+        asd.map(a => {
+          currentUserId = a.myUserId
+        });
+        isLoggedIn = true;
+        updateAuthUI();
+        showMessage('로그인 상태 확인됨! 🎉', 'success');
+      } else {
+        isLoggedIn = false;
+        console.log(response)
+        updateAuthUI();
+        showMessage('로그인이 필요합니다.', 'info');
+      }
+    } catch (error) {
+      console.error('Auth check failed:', error);
+      isLoggedIn = false;
+      updateAuthUI();
+      showMessage('서버 연결 실패: ' + error.message, 'error');
+    }
+  }
+
+  function updateAuthUI() {
+    const authStatus = document.getElementById('authStatus');
+    const likeSection = document.getElementById('likeSection');
+    const authRequired = document.getElementById('authRequired');
+    const chatRoomsSection = document.getElementById('chatRoomsSection');
+    const chatAuthRequired = document.getElementById('chatAuthRequired');
+
+    if (isLoggedIn) {
+      authStatus.className = 'auth-status logged-in';
+      authStatus.innerHTML = '<span class="status-indicator online"></span>로그인됨';
+      likeSection.style.display = 'block';
+      authRequired.style.display = 'none';
+      chatRoomsSection.style.display = 'block';
+      chatAuthRequired.style.display = 'none';
+      loadChatRooms();
+    } else {
+      authStatus.className = 'auth-status logged-out';
+      authStatus.innerHTML = '<span class="status-indicator offline"></span>로그인이 필요합니다';
+      likeSection.style.display = 'none';
+      authRequired.style.display = 'block';
+      chatRoomsSection.style.display = 'none';
+      chatAuthRequired.style.display = 'block';
+      document.getElementById('chatSection').style.display = 'none';
+    }
+  }
+
+  async function sendLike(targetUserId = null) {
+    if (!targetUserId) {
+      targetUserId = document.getElementById('targetUserId').value.trim();
+    }
+
+    if (!targetUserId) {
+      showMessage('좋아요할 사용자 ID를 입력해주세요.', 'error');
+      return;
+    }
+
+    try {
+      const response = await fetch(`${serverUrl}/api/v1/likes/${targetUserId}`, {
+        method: 'POST',
+        credentials: 'include'
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        document.getElementById('likeResult').innerHTML = `
+                        <div class="alert success">
+                            <strong>좋아요 전송 완료! 💕</strong><br>
+                            ${result.isMatch ? '🎉 매칭 성공! 이제 채팅할 수 있습니다.' : '상대방의 좋아요를 기다리는 중...'}
+                        </div>
+                    `;
+
+        if (result.isMatch) {
+          setTimeout(() => {
+            loadChatRooms();
+          }, 1000);
+        }
+      } else {
+        showMessage('좋아요 전송 실패: ' + response.status, 'error');
+      }
+    } catch (error) {
+      console.error('Like failed:', error);
+      showMessage('좋아요 전송 중 오류 발생: ' + error.message, 'error');
+    }
+  }
+
+  function quickLike(userId) {
+    sendLike(userId);
+  }
+
+  async function loadChatRooms() {
+    try {
+      const response = await fetch(`${serverUrl}/api/v1/chat/rooms`, {
+        credentials: 'include'
+      });
+
+      if (response.ok) {
+        const chatRooms = await response.json();
+        displayChatRooms(chatRooms);
+      } else {
+        showMessage('채팅방 로드 실패: ' + response.status, 'error');
+      }
+    } catch (error) {
+      console.error('Load chat rooms failed:', error);
+      showMessage('채팅방 로드 중 오류 발생: ' + error.message, 'error');
+    }
+  }
+
+  function displayChatRooms(chatRooms) {
+    const chatRoomsList = document.getElementById('chatRoomsList');
+
+    if (chatRooms.length === 0) {
+      chatRoomsList.innerHTML = '<div class="alert info">아직 매칭된 채팅방이 없습니다. 좋아요를 보내보세요! 💕</div>';
+      return;
+    }
+
+    chatRoomsList.innerHTML = chatRooms.map(room => `
+                <div class="chat-room" onclick="selectChatRoom('${room.roomId}', '${room.partnerNickname  || room.roomId}')">
+                    <strong>${room.partnerNickname || '상대방'}</strong>
+                    <br>
+                    <small>채팅방 ID: ${room.roomId}</small>
+                    ${room.lastMessage ? `<br><small>마지막 메시지: ${room.lastMessage}</small>` : ''}
+                </div>
+            `).join('');
+  }
+
+  function selectChatRoom(roomId, partnerName) {
+    currentRoomId = roomId;
+    document.getElementById('currentRoomName').textContent = partnerName;
+    document.getElementById('chatSection').style.display = 'block';
+    document.getElementById('chatContainer').style.display = 'block';
+    document.getElementById('chatInfo').style.display = 'none';
+
+    // 기존 연결 해제
+    if (stompClient) {
+      stompClient.disconnect();
+    }
+
+    // WebSocket 연결
+    connectWebSocket(currentRoomId);
+
+    // 활성 채팅방 표시
+    document.querySelectorAll('.chat-room').forEach(room => {
+      room.classList.remove('active');
+    });
+    event.target.classList.add('active');
+  }
+
+  function connectWebSocket() {
+    const socket = new SockJS(`${serverUrl}/ws`);
+    stompClient = Stomp.over(socket);
+
+    stompClient.connect({}, function (frame) {
+      console.log('✅ WebSocket Connected:', frame);
+
+      updateWSStatus(true); // 연결 상태 UI 업데이트
+
+      const subscribeUrl = `/user/${currentUserId}/queue/chat/room/${currentRoomId}`;
+      console.log("📥 구독 경로:", subscribeUrl);
+
+      stompClient.subscribe(subscribeUrl, function (message) {
+        const chatMessage = JSON.parse(message.body);
+        addMessage(chatMessage, false); // 받은 메시지를 표시
+      });
+
+      // 메시지 입력 활성화
+      document.getElementById('messageInput').disabled = false;
+      document.getElementById('sendBtn').disabled = false;
+
+    }, function(error) {
+      console.error('WebSocket 연결 실패:', error);
+      updateWSStatus(false);
+    });
+  }
+
+  function updateWSStatus(connected) {
+    const statusIndicator = document.getElementById('wsStatus');
+    const statusText = document.getElementById('wsStatusText');
+
+    if (connected) {
+      statusIndicator.className = 'status-indicator online';
+      statusText.textContent = '연결됨';
+    } else {
+      statusIndicator.className = 'status-indicator offline';
+      statusText.textContent = '연결되지 않음';
+    }
+  }
+
+  function sendMessage() {
+    const messageInput = document.getElementById('messageInput');
+    const content = messageInput.value.trim();
+
+    if (!content) {
+      showMessage('메시지를 입력해주세요.', 'error');
+      return;
+    }
+
+    if (!stompClient || !currentRoomId) {
+      showMessage('채팅방에 연결되지 않았습니다.', 'error');
+      return;
+    }
+
+    const messageDto = {
+      chatRoomId: currentRoomId,
+      content: content,
+      // recipientId: selectedRecipientId,
+      // senderId: currentUserId,
+      // senderName: currentUserName,
+      // recipientName: selectedRecipientName,
+      // status: "RECEIVED",
+      createdAt: new Date().toISOString()
+    };
+
+    try {
+      stompClient.send('/app/chat/message', {}, JSON.stringify(messageDto));
+      addMessage({ content: content, senderId: 'me' }, true);
+      messageInput.value = '';
+    } catch (error) {
+      console.error('Send message error:', error);
+      showMessage('메시지 전송 실패: ' + error.message, 'error');
+    }
+  }
+
+  function addMessage(message, isSent) {
+    const messagesContainer = document.getElementById('messages');
+
+    // 첫 메시지일 때 안내 텍스트 제거
+    if (messagesContainer.children.length === 1 &&
+        messagesContainer.firstElementChild.tagName === 'P') {
+      messagesContainer.innerHTML = '';
+    }
+
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message ${isSent ? 'sent' : 'received'}`;
+    messageDiv.textContent = message.content;
+
+    messagesContainer.appendChild(messageDiv);
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+  }
+
+  function logout() {
+    // 쿠키 삭제 (간단한 방법)
+    document.cookie.split(";").forEach(function(c) {
+      document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+    });
+
+    isLoggedIn = false;
+    updateAuthUI();
+    showMessage('로그아웃되었습니다.', 'info');
+
+    if (stompClient) {
+      stompClient.disconnect();
+    }
+  }
+
+  function showMessage(message, type) {
+    // 임시 알림 표시 (간단한 구현)
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert ${type}`;
+    alertDiv.textContent = message;
+    alertDiv.style.position = 'fixed';
+    alertDiv.style.top = '20px';
+    alertDiv.style.right = '20px';
+    alertDiv.style.zIndex = '1000';
+    alertDiv.style.maxWidth = '300px';
+
+    document.body.appendChild(alertDiv);
+
+    setTimeout(() => {
+      document.body.removeChild(alertDiv);
+    }, 3000);
+  }
+
+  // Enter 키로 메시지 전송
+  document.getElementById('messageInput').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      sendMessage();
+    }
+  });
+
+  // 서버 URL 변경 시 업데이트
+  document.getElementById('serverUrl').addEventListener('change', updateServerUrl);
+</script>
+</body>
+</html>

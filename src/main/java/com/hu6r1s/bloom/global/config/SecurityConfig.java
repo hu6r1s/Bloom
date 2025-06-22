@@ -27,7 +27,7 @@ public class SecurityConfig {
     http
         .csrf(csrf -> csrf.disable())
         .authorizeHttpRequests(authorization -> authorization
-            .requestMatchers("/", "/api/v1/login/**").permitAll()
+            .requestMatchers("/chat-test.html", "/api/v1/login").permitAll()
             .anyRequest().authenticated()
         )
         .oauth2Login(oauth2 -> oauth2

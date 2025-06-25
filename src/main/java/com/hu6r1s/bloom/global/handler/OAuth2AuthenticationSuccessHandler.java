@@ -1,35 +1,63 @@
 package com.hu6r1s.bloom.global.handler;
 
 import com.hu6r1s.bloom.global.jwt.JwtProvider;
+import com.hu6r1s.bloom.global.util.CookieUtil;
+import com.hu6r1s.bloom.global.util.RefreshTokenService;
+import com.hu6r1s.bloom.users.entity.CustomUserDetails;
+import com.hu6r1s.bloom.users.entity.User;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
+import org.springframework.web.util.UriComponentsBuilder;
 
 @Component
 @RequiredArgsConstructor
 public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
   private final JwtProvider jwtProvider;
+  private final RefreshTokenService refreshTokenService;
 
   @Value("${front-end.uri}")
   private String FRONT_END_URI;
 
+  @Value("${jwt.refresh-token-validity-in-seconds}")
+  private String REFRESH_TOKEN_VALIDITY;
+
   @Override
   public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication)
       throws IOException {
-    String accessToken = jwtProvider.createAccessToken(authentication);
-    String refreshToken = jwtProvider.createRefreshToken(authentication);
+    CustomUserDetails oAuth2User = (CustomUserDetails) authentication.getPrincipal();
+    User user = oAuth2User.getUser();
 
-    // todo 리프레시 토큰은 Redis, HttpOnly Cookie 저장
+    String targetUrl;
+    String accessToken;
+    String refreshToken;
+    if (user.isRegistrationComplete()) {
+        accessToken = jwtProvider.createAccessToken(authentication);
+        refreshToken = jwtProvider.createRefreshToken(authentication);
 
-    String redirectUrl = FRONT_END_URI + "/login/success";
-    response.setHeader("Authorization", "Bearer " + accessToken);
+        response.setHeader("Authorization", "Bearer " + accessToken);
 
-    getRedirectStrategy().sendRedirect(request, response, redirectUrl);
+        refreshTokenService.saveToken(String.format("%s::%s", user.getId(), user.getNickname()), refreshToken,
+            Long.parseLong(REFRESH_TOKEN_VALIDITY));
+        ResponseCookie responseCookie = CookieUtil.createRefreshTokenCookie(refreshToken,
+            Long.parseLong(REFRESH_TOKEN_VALIDITY));
+        response.addHeader("Set-Cookie", responseCookie.toString());
+
+        targetUrl = "/login-success.html"; // todo 추후 변경
+    } else {
+      String signupToken = jwtProvider.createTempToken(authentication, 10L);
+      targetUrl = UriComponentsBuilder.fromUriString("/signup.html") // todo 추후 변경
+          .queryParam("signupToken", signupToken)
+          .build().toUriString();
+    }
+
+    getRedirectStrategy().sendRedirect(request, response, targetUrl);
   }
 }

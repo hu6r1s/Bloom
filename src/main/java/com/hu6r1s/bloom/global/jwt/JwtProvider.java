@@ -92,4 +92,19 @@ public class JwtProvider {
       throw new AuthenticationCredentialsNotFoundException("JWT was expired or incorrect");
     }
   }
+
+  public String createTempToken(Authentication authentication, long expiration) {
+    String authorities = authentication.getAuthorities().stream()
+        .map(GrantedAuthority::getAuthority)
+        .collect(Collectors.joining(","));
+
+    long now = (new Date()).getTime();
+    Date validity = new Date(now + expiration * 60 * 1000);
+    return Jwts.builder()
+        .subject(authentication.getName())
+        .claim("role", authorities)
+        .signWith(key)
+        .expiration(validity)
+        .compact();
+  }
 }

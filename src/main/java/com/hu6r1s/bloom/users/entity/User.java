@@ -47,7 +47,7 @@ public class User {
   private boolean phoneVerified = false;
 
   @Field("is_active")
-  private boolean isActive = true;
+  private boolean isActive;
 
   @CreatedDate
   @Field("created_at")
@@ -60,9 +60,21 @@ public class User {
   @Field("deleted_at")
   private LocalDateTime deletedAt;
 
-  public User(String nickname, String email, Role role) {
-    this.nickname = nickname;
+  public User(String email, Role role) {
     this.email = email;
     this.roles = role;
+    this.isActive = true;
+  }
+
+  public void completeUserRegistration(String nickname, Integer age, Gender gender, String residenceRegion, String occupation) {
+    this.nickname = nickname;
+    this.age = age;
+    this.gender = gender;
+    this.residenceRegion = residenceRegion;
+    this.occupation = occupation;
+  }
+
+  public boolean isRegistrationComplete() {
+    return !nickname.isBlank() && age != null && gender != null && !residenceRegion.isBlank() && !occupation.isBlank();
   }
 }

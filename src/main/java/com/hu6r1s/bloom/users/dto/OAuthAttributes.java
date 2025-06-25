@@ -11,7 +11,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class OAuthAttributes {
-  private String nickname;
   private String email;
   private Map<String, Object> attributes;
 
@@ -25,7 +24,6 @@ public class OAuthAttributes {
 
   private static OAuthAttributes ofGoogle(Map<String, Object> attributes) {
     return new OAuthAttributes(
-        (String) attributes.get("name"),
         (String) attributes.get("email"),
         attributes
     );
@@ -37,13 +35,12 @@ public class OAuthAttributes {
     Map<String, Object> profile = (Map<String, Object>) kakaoAccount.get("profile");
 
     return new OAuthAttributes(
-        (String) profile.get("nickname"),
         (String) kakaoAccount.get("email"),
         attributes
     );
   }
 
   public User toEntity() {
-    return new User(nickname, email, Role.USER);
+    return new User(email, Role.USER);
   }
 }

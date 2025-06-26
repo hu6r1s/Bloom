@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>로그인 성공</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 600px;
+      margin: 100px auto;
+      padding: 20px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .container {
+      background: white;
+      padding: 40px;
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      text-align: center;
+      animation: fadeInUp 0.8s ease-out;
+    }
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    .success-icon {
+      font-size: 80px;
+      color: #4CAF50;
+      margin-bottom: 20px;
+    }
+    h1 {
+      color: #333;
+      margin-bottom: 20px;
+      font-size: 2.5em;
+    }
+    .welcome-message {
+      font-size: 18px;
+      color: #666;
+      margin-bottom: 30px;
+      line-height: 1.6;
+    }
+    .user-info {
+      background: #f8f9fa;
+      padding: 20px;
+      border-radius: 10px;
+      margin: 20px 0;
+      text-align: left;
+    }
+    .user-info h3 {
+      margin-top: 0;
+      color: #333;
+      text-align: center;
+    }
+    .info-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid #eee;
+    }
+    .info-item:last-child {
+      border-bottom: none;
+    }
+    .info-label {
+      font-weight: bold;
+      color: #555;
+    }
+    .info-value {
+      color: #333;
+    }
+    .action-buttons {
+      margin-top: 30px;
+    }
+    .btn {
+      display: inline-block;
+      padding: 12px 24px;
+      margin: 0 10px;
+      border: none;
+      border-radius: 5px;
+      text-decoration: none;
+      font-size: 16px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .btn-primary {
+      background-color: #007bff;
+      color: white;
+    }
+    .btn-primary:hover {
+      background-color: #0056b3;
+      transform: translateY(-2px);
+    }
+    .btn-secondary {
+      background-color: #6c757d;
+      color: white;
+    }
+    .btn-secondary:hover {
+      background-color: #545b62;
+      transform: translateY(-2px);
+    }
+    .logout-btn {
+      background-color: #dc3545;
+      color: white;
+    }
+    .logout-btn:hover {
+      background-color: #c82333;
+    }
+    .current-time {
+      font-size: 14px;
+      color: #888;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="success-icon">✅</div>
+  <h1>로그인 성공!</h1>
+  <div class="welcome-message">
+    환영합니다! 로그인이 성공적으로 완료되었습니다.
+  </div>
+
+  <div class="user-info">
+    <h3>사용자 정보</h3>
+    <div class="info-item">
+      <span class="info-label">닉네임:</span>
+      <span class="info-value" id="userNickname">-</span>
+    </div>
+    <div class="info-item">
+      <span class="info-label">로그인 시간:</span>
+      <span class="info-value" id="loginTime">-</span>
+    </div>
+    <div class="info-item">
+      <span class="info-label">세션 상태:</span>
+      <span class="info-value" style="color: #4CAF50;">활성</span>
+    </div>
+  </div>
+
+  <div class="action-buttons">
+    <button class="btn btn-primary" onclick="goToMain()">메인으로</button>
+    <button class="btn btn-secondary" onclick="viewProfile()">프로필 보기</button>
+    <button class="btn logout-btn" onclick="logout()">로그아웃</button>
+  </div>
+
+  <div class="current-time">
+    현재 시간: <span id="currentTime"></span>
+  </div>
+</div>
+
+<script>
+  // 현재 시간 업데이트
+  function updateTime() {
+    const now = new Date();
+    document.getElementById('currentTime').textContent = now.toLocaleString('ko-KR');
+    document.getElementById('loginTime').textContent = now.toLocaleString('ko-KR');
+  }
+
+  // 사용자 정보 로드 (실제로는 서버에서 가져와야 함)
+  function loadUserInfo() {
+    // 임시 데이터 (실제로는 JWT에서 파싱하거나 API 호출)
+    const userData = {
+      nickname: localStorage.getItem('userNickname') || '테스트사용자'
+    };
+
+    document.getElementById('userNickname').textContent = userData.nickname;
+  }
+
+  // 메인 페이지로 이동
+  function goToMain() {
+    // 실제 메인 페이지 URL로 변경
+    window.location.href = '/chat-test.html';
+  }
+
+  // 프로필 페이지로 이동
+  function viewProfile() {
+    // 실제 프로필 페이지 URL로 변경
+    alert('프로필 페이지로 이동합니다.');
+    // window.location.href = '/profile';
+  }
+
+  // 로그아웃
+  function logout() {
+    if (confirm('정말 로그아웃 하시겠습니까?')) {
+      // 로컬 스토리지 정리
+      localStorage.clear();
+
+      // 서버 로그아웃 API 호출 (필요시)
+      // fetch('/logout', { method: 'POST' });
+
+      // 로그인 페이지로 리다이렉트
+      window.location.href = '/login.html';
+    }
+  }
+
+  // 페이지 로드 시 실행
+  document.addEventListener('DOMContentLoaded', function() {
+    updateTime();
+    loadUserInfo();
+
+    // 1초마다 시간 업데이트
+    setInterval(updateTime, 1000);
+  });
+
+  // URL 파라미터에서 사용자 정보 추출 (optional)
+  const urlParams = new URLSearchParams(window.location.search);
+  const nickname = urlParams.get('nickname');
+  if (nickname) {
+    document.getElementById('userNickname').textContent = decodeURIComponent(nickname);
+    localStorage.setItem('userNickname', decodeURIComponent(nickname));
+  }
+</script>
+</body>
+</html>

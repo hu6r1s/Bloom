@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>회원가입</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 500px;
+      margin: 50px auto;
+      padding: 20px;
+      background-color: #f5f5f5;
+    }
+    .container {
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    h1 {
+      text-align: center;
+      color: #333;
+      margin-bottom: 30px;
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+      color: #555;
+    }
+    input, select {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #ddd;
+      border-radius: 5px;
+      font-size: 16px;
+      box-sizing: border-box;
+    }
+    input:focus, select:focus {
+      outline: none;
+      border-color: #4CAF50;
+    }
+    button {
+      width: 100%;
+      padding: 15px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 18px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    .error {
+      color: red;
+      font-size: 14px;
+      margin-top: 5px;
+    }
+    .success {
+      color: green;
+      text-align: center;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h1>회원가입</h1>
+  <form id="signupForm">
+    <div class="form-group">
+      <label for="nickname">닉네임:</label>
+      <input type="text" id="nickname" name="nickname" required>
+      <div class="error" id="nicknameError"></div>
+    </div>
+
+    <div class="form-group">
+      <label for="age">나이:</label>
+      <input type="number" id="age" name="age" min="1" max="120" required>
+      <div class="error" id="ageError"></div>
+    </div>
+
+    <div class="form-group">
+      <label for="gender">성별:</label>
+      <select id="gender" name="gender" required>
+        <option value="">선택해주세요</option>
+        <option value="M">남성</option>
+        <option value="F">여성</option>
+      </select>
+      <div class="error" id="genderError"></div>
+    </div>
+
+    <div class="form-group">
+      <label for="residenceRegion">거주지역:</label>
+      <input type="text" id="residenceRegion" name="residenceRegion" required>
+      <div class="error" id="residenceRegionError"></div>
+    </div>
+
+    <div class="form-group">
+      <label for="occupation">직업:</label>
+      <input type="text" id="occupation" name="occupation" required>
+      <div class="error" id="occupationError"></div>
+    </div>
+
+    <button type="submit">회원가입</button>
+  </form>
+  <div class="success" id="successMessage"></div>
+</div>
+
+<script>
+  let signupToken = null;
+
+  document.addEventListener('DOMContentLoaded', function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    signupToken = urlParams.get('signupToken'); // URL의 ?signupToken=... 값을 가져옴
+
+    if (!signupToken) {
+      // 만약 signupToken이 없다면, 이 페이지에 잘못 접근한 것이므로 에러 처리
+      console.error("Signup Token이 없습니다. 잘못된 접근입니다.");
+      document.body.innerHTML = "<h1>잘못된 접근입니다. 로그인 페이지로 돌아가세요.</h1>";
+    }
+  });
+
+  document.getElementById("signupForm").addEventListener("submit", function(e) {
+    e.preventDefault(); // ⭐️ 핵심: 기본 제출 막기
+    submitSignupForm(); // 직접 함수 호출
+  });
+
+  async function submitSignupForm() {
+    // signupToken이 없으면 요청을 보내지 않음
+    if (!signupToken) {
+      alert("유효한 가입 토큰이 없습니다. 다시 로그인해주세요.");
+      return;
+    }
+
+    const formData = {
+      nickname: document.getElementById('nickname').value,
+      age: parseInt(document.getElementById('age').value),
+      gender: document.getElementById('gender').value,
+      residenceRegion: document.getElementById('residenceRegion').value,
+      occupation: document.getElementById('occupation').value
+    };
+
+    try {
+      // ✅ 수정된 fetch 요청
+      const response = await fetch('/api/v1/users/signup', { // 수정된 API 경로
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          // ✅ 핵심 수정사항: Authorization 헤더에 임시 토큰 추가
+          'Authorization': `Bearer ${signupToken}`
+        },
+        body: JSON.stringify(formData)
+      });
+
+      if (response.ok) {
+        // 회원가입 및 로그인 성공!
+        // 서버가 응답 헤더에 담아준 최종 accessToken과 쿠키에 담아준 refreshToken을 사용
+        const finalAccessToken = response.headers.get('Authorization')?.split(' ')[1];
+        if (finalAccessToken) {
+          // 최종 토큰을 localStorage 등에 저장
+          localStorage.setItem('accessToken', finalAccessToken);
+        }
+
+        alert('회원가입이 완료되었습니다! 메인 페이지로 이동합니다.');
+        window.location.href = '/login-success.html'; // 실제 메인 페이지 경로
+
+      } else {
+        const errorData = await response.json();
+        console.error('회원가입 실패:', errorData);
+        alert(`가입 실패: ${errorData.message}`);
+      }
+    } catch (error) {
+      console.error('네트워크 오류:', error);
+      alert('네트워크 오류가 발생했습니다.');
+    }
+  }
+</script>
+</body>
+</html>

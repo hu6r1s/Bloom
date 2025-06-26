@@ -23,8 +23,8 @@ public class UserService {
   private final JwtProvider jwtProvider;
 
   @Transactional
-  public Map<String, String> completeRegistration(String userId, UserSignupRequestDto requestDto) {
-    User user = userRepository.findById(userId)
+  public Map<String, String> completeRegistration(String userEmail, UserSignupRequestDto requestDto) {
+    User user = userRepository.findByEmail(userEmail)
         .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
 
     user.completeUserRegistration(

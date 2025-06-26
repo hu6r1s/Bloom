@@ -52,8 +52,8 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 
         targetUrl = "/login-success.html"; // todo 추후 변경
     } else {
-      String signupToken = jwtProvider.createTempToken(authentication, 10L);
-      targetUrl = UriComponentsBuilder.fromUriString("/signup.html") // todo 추후 변경
+      String signupToken = jwtProvider.createTempToken(authentication, 600L);
+      targetUrl = UriComponentsBuilder.fromUriString("/signup.html")
           .queryParam("signupToken", signupToken)
           .build().toUriString();
     }

@@ -70,7 +70,7 @@ public class JwtProvider {
         .build().parseSignedClaims(token).getPayload();
 
     Collection<? extends GrantedAuthority> authorities =
-        Arrays.stream(claims.get("auth").toString().split(","))
+        Arrays.stream(claims.get("role").toString().split(","))
             .map(SimpleGrantedAuthority::new)
             .collect(Collectors.toList());
 
@@ -80,16 +80,16 @@ public class JwtProvider {
 
   public boolean validateToken(String token) {
     try {
-      Jwts.parser().decryptWith(key).build().parse(token);
+      Jwts.parser().verifyWith(key).build().parseSignedClaims(token);
       return true;
-    } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
-      throw new AuthenticationCredentialsNotFoundException("JWT was expired or incorrect");
+    } catch (SecurityException | MalformedJwtException e) {
+      throw new AuthenticationCredentialsNotFoundException("JWT was expired or incorrect.");
     } catch (ExpiredJwtException e) {
-      throw new AuthenticationCredentialsNotFoundException("JWT was expired or incorrect");
+      throw new AuthenticationCredentialsNotFoundException("Expired JWT token.");
     } catch (UnsupportedJwtException e) {
-      throw new AuthenticationCredentialsNotFoundException("JWT was expired or incorrect");
+      throw new AuthenticationCredentialsNotFoundException("Unsupported JWT token.");
     } catch (IllegalArgumentException e) {
-      throw new AuthenticationCredentialsNotFoundException("JWT was expired or incorrect");
+      throw new AuthenticationCredentialsNotFoundException("JWT token compact of handler are invalid.");
     }
   }
 
@@ -99,7 +99,7 @@ public class JwtProvider {
         .collect(Collectors.joining(","));
 
     long now = (new Date()).getTime();
-    Date validity = new Date(now + expiration * 60 * 1000);
+    Date validity = new Date(now + (expiration * 1000));
     return Jwts.builder()
         .subject(authentication.getName())
         .claim("role", authorities)

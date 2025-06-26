@@ -30,8 +30,8 @@ public class UserController {
       Authentication authentication,
       @RequestBody UserSignupRequestDto requestDto,
       HttpServletResponse response) {
-    String userId = authentication.getName();
-    Map<String, String> tokens = userService.completeRegistration(userId, requestDto);
+    String userEmail = authentication.getName();
+    Map<String, String> tokens = userService.completeRegistration(userEmail, requestDto);
 
     String accessToken = tokens.get("accessToken");
     String refreshToken = tokens.get("refreshToken");

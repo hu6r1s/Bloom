@@ -75,6 +75,10 @@ public class User {
   }
 
   public boolean isRegistrationComplete() {
-    return !nickname.isBlank() && age != null && gender != null && !residenceRegion.isBlank() && !occupation.isBlank();
+    return nickname != null && !nickname.isBlank()
+        && age != null
+        && gender != null
+        && residenceRegion != null && !residenceRegion.isBlank()
+        && occupation != null && !occupation.isBlank();
   }
 }

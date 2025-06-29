@@ -7,7 +7,6 @@ import com.hu6r1s.bloom.users.repository.UserRepository;
 import java.util.Map;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -34,6 +33,12 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
       return userRepository.save(newUser);
     });
 
-    return new CustomUserDetails(user, oAuthAttributes.getAttributes());
+    return CustomUserDetails.builder()
+        .id(user.getId())
+        .email(user.getEmail())
+        .role(user.getRoles())
+        .isActive(user.isActive())
+        .attributes(oAuthAttributes.getAttributes())
+        .build();
   }
 }

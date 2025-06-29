@@ -1,5 +1,7 @@
 package com.hu6r1s.bloom.global.jwt;
 
+import com.hu6r1s.bloom.users.entity.CustomUserDetails;
+import com.hu6r1s.bloom.users.entity.enums.Role;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
@@ -18,8 +20,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -47,6 +47,7 @@ public class JwtProvider {
     Date validity = new Date(now + this.accessTokenValidityInMilliseconds);
     return Jwts.builder()
         .subject(authentication.getName())
+        .claim("email", ((CustomUserDetails) authentication.getPrincipal()).getEmail())
         .claim("role", authorities)
         .signWith(key)
         .expiration(validity)
@@ -74,7 +75,13 @@ public class JwtProvider {
             .map(SimpleGrantedAuthority::new)
             .collect(Collectors.toList());
 
-    UserDetails principal = new User(claims.getSubject(), "", authorities);
+    CustomUserDetails principal = CustomUserDetails.builder()
+        .id(claims.getSubject())
+        .email(claims.get("email", String.class))
+        .role(Role.valueOf(claims.get("role", String.class).replace("ROLE_", "")))
+        .isActive(true)
+        .build();
+
     return new UsernamePasswordAuthenticationToken(principal, token, authorities);
   }
 

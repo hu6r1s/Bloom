@@ -22,7 +22,7 @@ public class ChatRoomController {
   public ResponseEntity<List<ChatRoomListDto>> getMyChatRooms(
       Authentication authentication
   ) {
-    String userId = ((CustomUserDetails) authentication.getPrincipal()).getUser().getId();
+    String userId = ((CustomUserDetails) authentication.getPrincipal()).getId();
     List<ChatRoomListDto> chatRooms = chatRoomService.findMyChatRooms(userId);
     return ResponseEntity.ok(chatRooms);
 

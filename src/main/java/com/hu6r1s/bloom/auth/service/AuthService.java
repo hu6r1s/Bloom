@@ -10,7 +10,6 @@ import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,8 +22,8 @@ public class AuthService {
   private final JwtProvider jwtProvider;
 
   @Transactional
-  public Map<String, String> completeRegistration(String userEmail, UserSignupRequestDto requestDto) {
-    User user = userRepository.findByEmail(userEmail)
+  public Map<String, String> completeRegistration(String userId, UserSignupRequestDto requestDto) {
+    User user = userRepository.findById(userId)
         .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
 
     user.completeUserRegistration(
@@ -37,7 +36,12 @@ public class AuthService {
 
     userRepository.save(user);
 
-    UserDetails userDetails = new CustomUserDetails(user);
+    CustomUserDetails userDetails = CustomUserDetails.builder()
+        .id(user.getId())
+        .email(user.getEmail())
+        .role(user.getRoles())
+        .isActive(user.isActive())
+        .build();
     Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
 
     String accessToken = jwtProvider.createAccessToken(authentication);

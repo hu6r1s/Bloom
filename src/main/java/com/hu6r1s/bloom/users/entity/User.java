@@ -3,6 +3,8 @@ package com.hu6r1s.bloom.users.entity;
 import com.hu6r1s.bloom.users.entity.enums.Gender;
 import com.hu6r1s.bloom.users.entity.enums.Role;
 import java.time.LocalDateTime;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
@@ -14,6 +16,8 @@ import org.springframework.data.mongodb.core.mapping.Field;
 @Document(collection = "users")
 @Getter
 @NoArgsConstructor
+@Builder
+@AllArgsConstructor
 public class User {
 
   @Id
@@ -59,12 +63,6 @@ public class User {
 
   @Field("deleted_at")
   private LocalDateTime deletedAt;
-
-  public User(String email, Role role) {
-    this.email = email;
-    this.roles = role;
-    this.isActive = true;
-  }
 
   public void completeUserRegistration(String nickname, Integer age, Gender gender, String residenceRegion, String occupation) {
     this.nickname = nickname;

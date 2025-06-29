@@ -24,7 +24,7 @@ public class ChatMessageController {
 
   @MessageMapping("/chat/message")
   public void message(@Payload ChatMessageDto messageDto, Authentication authentication) {
-    String senderId = ((CustomUserDetails) authentication.getPrincipal()).getUser().getId();
+    String senderId = ((CustomUserDetails) authentication.getPrincipal()).getId();
     ChatMessage savedMessage = chatMessageService.saveMessage(messageDto, senderId);
 
     String roomId = savedMessage.getChatRoomId();

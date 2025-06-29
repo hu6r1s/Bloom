@@ -30,8 +30,8 @@ public class AuthController {
       Authentication authentication,
       @RequestBody UserSignupRequestDto requestDto,
       HttpServletResponse response) {
-    String userEmail = authentication.getName();
-    Map<String, String> tokens = authService.completeRegistration(userEmail, requestDto);
+    String userId = authentication.getName();
+    Map<String, String> tokens = authService.completeRegistration(userId, requestDto);
 
     String accessToken = tokens.get("accessToken");
     String refreshToken = tokens.get("refreshToken");

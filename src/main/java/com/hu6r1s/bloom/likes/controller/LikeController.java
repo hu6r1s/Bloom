@@ -23,7 +23,7 @@ public class LikeController {
       Authentication authentication,
       @PathVariable String likedUserId
   ) {
-    String likingUserId = ((CustomUserDetails) authentication.getPrincipal()).getUser().getId();
+    String likingUserId = ((CustomUserDetails) authentication.getPrincipal()).getId();
 
     LikeResponseDto response = likeService.pressLike(likingUserId, likedUserId);
     return ResponseEntity.ok(response);

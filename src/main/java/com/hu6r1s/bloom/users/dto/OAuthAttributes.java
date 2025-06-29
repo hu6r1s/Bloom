@@ -32,7 +32,6 @@ public class OAuthAttributes {
   @SuppressWarnings("unchecked")
   private static OAuthAttributes ofKakao(Map<String, Object> attributes) {
     Map<String, Object> kakaoAccount = (Map<String, Object>) attributes.get("kakao_account");
-    Map<String, Object> profile = (Map<String, Object>) kakaoAccount.get("profile");
 
     return new OAuthAttributes(
         (String) kakaoAccount.get("email"),
@@ -41,6 +40,10 @@ public class OAuthAttributes {
   }
 
   public User toEntity() {
-    return new User(email, Role.USER);
+    return User.builder()
+        .email(email)
+        .roles(Role.USER)
+        .isActive(true)
+        .build();
   }
 }

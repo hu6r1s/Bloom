@@ -2,22 +2,32 @@ package com.hu6r1s.bloom.users.entity;
 
 import com.hu6r1s.bloom.users.entity.enums.BodyType;
 import com.hu6r1s.bloom.users.entity.enums.ChildPlan;
-import com.hu6r1s.bloom.users.entity.enums.DrinkingFrequncy;
+import com.hu6r1s.bloom.users.entity.enums.DrinkingFrequency;
 import com.hu6r1s.bloom.users.entity.enums.Religion;
 import com.hu6r1s.bloom.users.entity.enums.Smoking;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 @Document(collection = "profiles")
-public class Profiles {
+@Getter
+@NoArgsConstructor
+@Builder
+@AllArgsConstructor
+public class Profile {
 
   @Id
   private String id;
 
   @Field("user_id")
+  @Indexed(unique = true)
   private String userId;
 
   @Field("height")
@@ -33,13 +43,13 @@ public class Profiles {
   private String education;
 
   @Field("annual_income")
-  private int annualIncome;
+  private Long annualIncome;
 
   @Field("smoking")
   private Smoking smoking;
 
   @Field("drinking_frequency")
-  private DrinkingFrequncy drinkingFrequency;
+  private DrinkingFrequency drinkingFrequency;
 
   @Field("mbti")
   private Mbti mbti;

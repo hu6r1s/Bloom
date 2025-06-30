@@ -2,8 +2,9 @@ package com.hu6r1s.bloom.global.handler;
 
 import com.hu6r1s.bloom.global.exception.ChatPartnerNotFoundException;
 import com.hu6r1s.bloom.global.exception.ErrorResponse;
-import com.hu6r1s.bloom.global.exception.LikeReplicationException;
+import com.hu6r1s.bloom.global.exception.LikeDuplicationException;
 import com.hu6r1s.bloom.global.exception.NotFoundChatRoomException;
+import com.hu6r1s.bloom.global.exception.ProfileDuplicationException;
 import com.hu6r1s.bloom.global.exception.SelfLikeException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -31,8 +32,8 @@ public class GlobalExceptionHandler {
     return new ResponseEntity<>(errorResponse, status);
   }
 
-  @ExceptionHandler({ LikeReplicationException.class })
-  public ResponseEntity<ErrorResponse> handleLikeConflict(LikeReplicationException ex, WebRequest request) {
+  @ExceptionHandler({ LikeDuplicationException.class, ProfileDuplicationException.class })
+  public ResponseEntity<ErrorResponse> handleLikeConflict(RuntimeException  ex, WebRequest request) {
     HttpStatus status = HttpStatus.CONFLICT;
     log.warn("Conflict exception occurred: {}", ex.getMessage());
 

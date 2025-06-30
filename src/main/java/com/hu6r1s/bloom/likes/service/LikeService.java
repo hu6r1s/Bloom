@@ -2,7 +2,7 @@ package com.hu6r1s.bloom.likes.service;
 
 import com.hu6r1s.bloom.chat.entity.ChatRoom;
 import com.hu6r1s.bloom.chat.repository.ChatRoomRepository;
-import com.hu6r1s.bloom.global.exception.LikeReplicationException;
+import com.hu6r1s.bloom.global.exception.LikeDuplicationException;
 import com.hu6r1s.bloom.global.exception.SelfLikeException;
 import com.hu6r1s.bloom.likes.dto.response.LikeResponseDto;
 import com.hu6r1s.bloom.likes.entity.Like;
@@ -25,11 +25,11 @@ public class LikeService {
     }
 
     if (likeRepository.existsByLikingUserIdAndLikedUserId(likingUserId, likedUserId)) {
-      throw new LikeReplicationException("이미 '좋아요'를 누른 상대입니다.");
+      throw new LikeDuplicationException("이미 '좋아요'를 누른 상대입니다.");
     }
 
     Like newLike = new Like(likingUserId, likedUserId);
-    Like a = likeRepository.save(newLike);
+    likeRepository.save(newLike);
     boolean isMatched = likeRepository.existsByLikingUserIdAndLikedUserId(likedUserId, likingUserId);
     if (isMatched) {
       ChatRoom newChatRoom = new ChatRoom(Set.of(likingUserId, likedUserId));

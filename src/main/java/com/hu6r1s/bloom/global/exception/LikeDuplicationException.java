@@ -4,8 +4,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(HttpStatus.CONFLICT)
-public class LikeReplicationException extends RuntimeException {
-  public LikeReplicationException(String message) {
+public class LikeDuplicationException extends RuntimeException {
+  public LikeDuplicationException(String message) {
     super(message);
   }
 }

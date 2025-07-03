@@ -5,6 +5,7 @@ import com.hu6r1s.bloom.global.exception.ErrorResponse;
 import com.hu6r1s.bloom.global.exception.LikeDuplicationException;
 import com.hu6r1s.bloom.global.exception.NotFoundChatRoomException;
 import com.hu6r1s.bloom.global.exception.ProfileDuplicationException;
+import com.hu6r1s.bloom.global.exception.ProfileNotfoundException;
 import com.hu6r1s.bloom.global.exception.SelfLikeException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -64,6 +65,21 @@ public class GlobalExceptionHandler {
 
   @ExceptionHandler({ ChatPartnerNotFoundException.class })
   public ResponseEntity<ErrorResponse> handleLikeConflict(ChatPartnerNotFoundException ex, WebRequest request) {
+    HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
+    log.warn("Internal Server Error exception occurred: {}", ex.getMessage());
+
+    ErrorResponse errorResponse = new ErrorResponse(
+        status.value(),
+        status.getReasonPhrase(),
+        ex.getMessage(),
+        request.getDescription(false).replace("uri=", "")
+    );
+
+    return new ResponseEntity<>(errorResponse, status);
+  }
+
+  @ExceptionHandler({ ProfileNotfoundException.class })
+  public ResponseEntity<ErrorResponse> handleLikeConflict(ProfileNotfoundException ex, WebRequest request) {
     HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
     log.warn("Internal Server Error exception occurred: {}", ex.getMessage());
 

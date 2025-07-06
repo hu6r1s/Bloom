@@ -41,7 +41,7 @@ public class Image {
   private String fileExtension;
 
   @Field("is_active")
-  private boolean isActive = true;
+  private boolean isActive;
 
   @CreatedDate
   @Field("created_at")

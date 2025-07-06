@@ -1,14 +1,17 @@
 package com.hu6r1s.bloom.images.service;
 
 import com.hu6r1s.bloom.global.exception.NotValidExtensionException;
+import com.hu6r1s.bloom.images.dto.response.ImageResponseDto;
 import com.hu6r1s.bloom.images.entity.Image;
 import com.hu6r1s.bloom.images.repository.ImageRepository;
 import com.hu6r1s.bloom.users.entity.User;
 import com.hu6r1s.bloom.users.repository.UserRepository;
 import io.awspring.cloud.s3.S3Template;
 import java.io.IOException;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -64,5 +67,11 @@ public class ImageService {
         .build();
 
     imageRepository.save(image);
+  }
+
+  @Transactional(readOnly = true)
+  public List<ImageResponseDto> findAllImage(String userId) {
+    List<Image> images = imageRepository.findByUserIdAndIsActiveTrue(userId);
+    return images.stream().map(ImageResponseDto::fromEntity).collect(Collectors.toList());
   }
 }

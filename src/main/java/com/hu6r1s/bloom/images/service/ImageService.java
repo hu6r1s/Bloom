@@ -60,6 +60,7 @@ public class ImageService {
         .fileExtension(fileExtension)
         .originalFileName(originalFileName)
         .fileSize(file.getSize())
+        .isActive(true)
         .build();
 
     imageRepository.save(image);

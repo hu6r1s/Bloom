@@ -39,12 +39,51 @@ public class ProfileRequestDto {
   private String relationshipView;
   private String selfIntroduction;
 
+  @Getter
+  @NoArgsConstructor
+  public static class BasicInfoDto {
+    private Double height;
+    private BodyType bodyType;
+  }
+
+  @Getter
+  @NoArgsConstructor
+  public static class WorkDto {
+    private String company;
+    private String education;
+    private Long annualIncome;
+  }
+
+  @Getter
+  @NoArgsConstructor
+  public static class LifestyleDto {
+    private Smoking smoking;
+    private DrinkingFrequency drinkingFrequency;
+    private String hobbiesInterests;
+    private String weekendStyle;
+    private String dateStyle;
+  }
+
+  @Getter
+  @NoArgsConstructor
+  public static class PersonalityDto {
+    private Mbti mbti;
+    private String personalKeywords;
+    private String communicationStyle;
+    private PoliticalTendency politicalTendency;
+    private Religion religion;
+    private ChildPlan childPlan;
+    private String marriageThoughts;
+    private String coreValues;
+    private String lifePriorities;
+    private String relationshipView;
+  }
 
   public Profile toEntity(String userId) {
     return Profile.builder()
         .userId(userId)
         .annualIncome(this.annualIncome)
-        .body_type(this.bodyType)
+        .bodyType(this.bodyType)
         .childPlan(this.childPlan)
         .communicationStyle(this.communicationStyle)
         .company(this.company)

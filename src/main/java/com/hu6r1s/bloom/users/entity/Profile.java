@@ -1,10 +1,12 @@
 package com.hu6r1s.bloom.users.entity;
 
+import com.hu6r1s.bloom.users.dto.request.ProfileRequestDto;
 import com.hu6r1s.bloom.users.entity.enums.BodyType;
 import com.hu6r1s.bloom.users.entity.enums.ChildPlan;
 import com.hu6r1s.bloom.users.entity.enums.DrinkingFrequency;
 import com.hu6r1s.bloom.users.entity.enums.Religion;
 import com.hu6r1s.bloom.users.entity.enums.Smoking;
+import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -34,7 +36,7 @@ public class Profile {
   private double height;
 
   @Field("body_type")
-  private BodyType body_type;
+  private BodyType bodyType;
 
   @Field("company")
   private String company;
@@ -100,4 +102,28 @@ public class Profile {
   @LastModifiedDate
   @Field("updated_at")
   private String updatedAt;
+
+  public void update(ProfileRequestDto requestDto) {
+    Optional.ofNullable(requestDto.getHeight()).ifPresent(value -> this.height = value);
+    Optional.ofNullable(requestDto.getBodyType()).ifPresent(value -> this.bodyType = value);
+    Optional.ofNullable(requestDto.getCompany()).ifPresent(value -> this.company = value);
+    Optional.ofNullable(requestDto.getEducation()).ifPresent(value -> this.education = value);
+    Optional.ofNullable(requestDto.getAnnualIncome()).ifPresent(value -> this.annualIncome = value);
+    Optional.ofNullable(requestDto.getSmoking()).ifPresent(value -> this.smoking = value);
+    Optional.ofNullable(requestDto.getDrinkingFrequency()).ifPresent(value -> this.drinkingFrequency = value);
+    Optional.ofNullable(requestDto.getMbti()).ifPresent(value -> this.mbti = value);
+    Optional.ofNullable(requestDto.getPoliticalTendency()).ifPresent(value -> this.politicalTendency = value);
+    Optional.ofNullable(requestDto.getReligion()).ifPresent(value -> this.religion = value);
+    Optional.ofNullable(requestDto.getChildPlan()).ifPresent(value -> this.childPlan = value);
+    Optional.ofNullable(requestDto.getMarriageThoughts()).ifPresent(value -> this.marriageThoughts = value);
+    Optional.ofNullable(requestDto.getPersonalKeywords()).ifPresent(value -> this.personalKeywords = value);
+    Optional.ofNullable(requestDto.getCoreValues()).ifPresent(value -> this.coreValues = value);
+    Optional.ofNullable(requestDto.getLifePriorities()).ifPresent(value -> this.lifePriorities = value);
+    Optional.ofNullable(requestDto.getHobbiesInterests()).ifPresent(value -> this.hobbiesInterests = value);
+    Optional.ofNullable(requestDto.getWeekendStyle()).ifPresent(value -> this.weekendStyle = value);
+    Optional.ofNullable(requestDto.getDateStyle()).ifPresent(value -> this.dateStyle = value);
+    Optional.ofNullable(requestDto.getCommunicationStyle()).ifPresent(value -> this.communicationStyle = value);
+    Optional.ofNullable(requestDto.getRelationshipView()).ifPresent(value -> this.relationshipView = value);
+    Optional.ofNullable(requestDto.getSelfIntroduction()).ifPresent(value -> this.selfIntroduction = value);
+  }
 }

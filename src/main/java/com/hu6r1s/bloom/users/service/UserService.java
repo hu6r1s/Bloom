@@ -3,6 +3,7 @@ package com.hu6r1s.bloom.users.service;
 import com.hu6r1s.bloom.users.dto.response.UserInfoResponseDto;
 import com.hu6r1s.bloom.users.entity.User;
 import com.hu6r1s.bloom.users.repository.UserRepository;
+import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -26,5 +27,17 @@ public class UserService {
         .gender(user.getGender())
         .phoneVerified(user.isPhoneVerified())
         .build();
+  }
+
+  public void deleteUser(String userId) {
+    User user = userRepository.findById(userId)
+        .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
+
+    User deletedUser = user.toBuilder()
+        .deletedAt(LocalDateTime.now())
+        .isActive(false)
+        .build();
+
+    userRepository.save(deletedUser);
   }
 }

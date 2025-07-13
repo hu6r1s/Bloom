@@ -16,7 +16,7 @@ import org.springframework.data.mongodb.core.mapping.Field;
 @Document(collection = "users")
 @Getter
 @NoArgsConstructor
-@Builder
+@Builder(toBuilder = true)
 @AllArgsConstructor
 public class User {
 

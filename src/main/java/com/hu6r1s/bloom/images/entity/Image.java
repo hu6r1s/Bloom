@@ -13,7 +13,7 @@ import org.springframework.data.mongodb.core.mapping.Field;
 
 @Document(collection = "images")
 @Getter
-@Builder
+@Builder(toBuilder = true)
 @NoArgsConstructor
 @AllArgsConstructor
 public class Image {

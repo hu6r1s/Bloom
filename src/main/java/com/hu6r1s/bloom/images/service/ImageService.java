@@ -1,5 +1,6 @@
 package com.hu6r1s.bloom.images.service;
 
+import com.hu6r1s.bloom.global.exception.NotFoundImageException;
 import com.hu6r1s.bloom.global.exception.NotValidExtensionException;
 import com.hu6r1s.bloom.images.dto.response.ImageResponseDto;
 import com.hu6r1s.bloom.images.entity.Image;
@@ -8,6 +9,7 @@ import com.hu6r1s.bloom.users.entity.User;
 import com.hu6r1s.bloom.users.repository.UserRepository;
 import io.awspring.cloud.s3.S3Template;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -73,5 +75,15 @@ public class ImageService {
   public List<ImageResponseDto> findAllImage(String userId) {
     List<Image> images = imageRepository.findByUserIdAndIsActiveTrue(userId);
     return images.stream().map(ImageResponseDto::fromEntity).collect(Collectors.toList());
+  }
+
+  @Transactional
+  public void deleteImage(String imageId) {
+    Image image = imageRepository.findByIdAndIsActiveTrue(imageId)
+        .orElseThrow(() -> new NotFoundImageException("이미지를 찾을 수 없습니다."));
+
+    Image deletedImage = image.toBuilder().deletedAt(LocalDateTime.now()).isActive(false).build();
+
+    imageRepository.save(deletedImage);
   }
 }
